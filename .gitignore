@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env*
+!.env.example
+*.log
+.DS_Store
+._*
+.idea/
+.vscode/
+*.pem
+*.p12
+*.mobileprovision
+.cache/
+*.tsbuildinfo
+# Personal exports contain album photos and private notes.
+hbd-backup-*.json
