@@ -8,7 +8,7 @@ import { Cake } from './Cake';
 const tabs = [{ id: 'home', title: '홈', Icon: Heart }, { id: 'roulette', title: '룰렛', Icon: Ticket }, { id: 'cake', title: '촛불', Icon: CakeSlice }, { id: 'wishes', title: '소원권', Icon: Gift }, { id: 'album', title: '앨범', Icon: Images }] as const;
 type Tab = typeof tabs[number]['id'];
 type Update = (change: (data: AppData) => AppData) => Promise<boolean>;
-const NoticeContext = createContext({ error: '', dismiss: () => {} });
+const NoticeContext = createContext({ error: '', dismiss: () => { } });
 function ErrorNotice() {
   const { error, dismiss } = useContext(NoticeContext);
   return error ? <div className="toast" role="alert"><span>{error}</span><button aria-label="알림 닫기" onClick={dismiss}><X size={18} /></button></div> : null;
@@ -94,7 +94,7 @@ export default function App() {
             <button className="quick-card yellow" onClick={() => navigate('wishes')}><Gift /><strong>소원권 5장</strong><small>앙이에게 바치는,, 소원 쿠폰..</small></button>
             <button className="quick-card mint album-link" onClick={() => navigate('album')}><Images /><strong>우리의 추억 앨범</strong><small>앙앤밍의,, 추억,, 새록새록,,</small><ChevronRight className="card-chevron" /></button>
           </div></div>
-          <footer className="home-footer"><button className="couple-button" onClick={() => setLetterOpen(true)} aria-label="생일 편지 열기"><img src={asset('characters/couple-hug.png')} alt="함께 안고 있는 앙이와 밍이" /><span>💌</span></button><div><small>9.23 + 9.24</small><p>우리, 태어나줘서 고마워 ♥</p></div></footer>
+          <footer className="home-footer"><button className="couple-button" onClick={() => setLetterOpen(true)} aria-label="생일 편지 열기"><img src={asset('characters/couple-hug.png')} alt="함께 안고 있는 앙이와 밍이" /><span>💌</span></button><div><small>9.23 + 9.24</small><p>태어나줘서 고맙단다 ♥</p></div></footer>
           <div className="home-tools"><button className="text-button" onClick={() => setToolsOpen(true)}>홈 화면에 추가 · 보관함</button><button className="mascot-toggle" aria-label={data.roaming ? '움직이는 캐릭터 끄기' : '움직이는 캐릭터 켜기'} aria-pressed={data.roaming} disabled={busy} onClick={() => void update(d => ({ ...d, roaming: !d.roaming }))}>{data.roaming ? <Eye size={15} /> : <EyeOff size={15} />}</button></div>
         </section>
         <section hidden={tab !== 'roulette'} aria-label="룰렛"><Roulette data={data} update={update} busy={busy} /></section>
