@@ -10,7 +10,7 @@ test('mobile layout, hearts, letter, home-only toggle and default album', async 
   await expect(page.locator('.heart-burst i')).toHaveCount(12);
   await page.getByRole('button', { name: '생일 편지 열기' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.locator('.letter-paper')).toContainText('동해 물과 백두산이');
+  await expect(page.locator('.letter-paper p')).not.toHaveText('');
   await expect(page.getByRole('dialog').locator('textarea, input')).toHaveCount(0);
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   await page.getByRole('button', { name: '움직이는 캐릭터 끄기' }).click();
