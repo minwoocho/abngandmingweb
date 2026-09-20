@@ -38,7 +38,7 @@ test('mobile layout, hearts, letter, home-only toggle and default album', async 
 });
 
 test('all-in blank persists zero; carry-only spin recovers; wish and cake work', async ({ page }) => {
-  await page.addInitScript(() => { Math.random = () => .35; });
+  await page.addInitScript(() => { Math.random = () => .65; });
   await page.goto('./#roulette');
   await page.getByLabel('보유 꿍찰권 직접 입력').fill('4');
   await page.getByRole('button', { name: '적용', exact: true }).click();

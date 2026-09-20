@@ -74,12 +74,41 @@ main { padding: calc(20px + env(safe-area-inset-top)) 18px calc(92px + env(safe-
 .wheel-stage { position: relative; width: min(282px, calc(100vw - 60px)); aspect-ratio: 1; margin: 30px auto 28px; }
 .wheel { width: 100%; height: 100%; position: relative; border-radius: 50%; outline: 7px solid #fff; border: 2px solid var(--ink); box-shadow: 0 10px 20px #70455c38; transition: transform 3.4s cubic-bezier(.12,.71,.12,1); }
 .wheel-pointer { position: absolute; z-index: 2; top: -16px; left: calc(50% - 15px); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 32px solid var(--ink); }
-.wheel-label { position: absolute; transform: translate(-50%, -50%); font-size: 12px; text-align: center; font-weight: 800; }
-.wheel-label:last-of-type { font-size: 10px; }
+.wheel-label { position: absolute; transform: translate(-50%, -50%); font-size: 11px; text-align: center; font-weight: 800; line-height: 1.1; }
+.wheel-label:last-of-type { font-size: 9.5px; }
 .wheel-hub { position: absolute; inset: calc(50% - 29px); width: 58px; height: 58px; background: white; border-radius: 50%; border: 3px solid var(--ink); display: grid; place-items: center; color: var(--coral); box-shadow: 0 4px 0 #382e362e; }
 .bet-panel { background: #ffffffaa; border-radius: 23px; padding: 16px; display: grid; gap: 12px; }
 .bet-panel .row { font-size: 13px; }.bet-panel .row strong { font-size: 20px; }.bet-panel > small { text-align: center; color: var(--plum); }
 .presets { display: flex; gap: 7px; }.presets button { flex: 1; background: white; border-radius: 11px; min-height: 38px; font-size: 12px; font-weight: 750; }
+
+/* Power Gauge */
+.gauge-container { background: #ffffffa0; border-radius: 16px; padding: 10px 14px; display: grid; gap: 6px; border: 1.5px solid var(--line); transition: all .2s ease; }
+.gauge-container.active { background: #ffffffdd; border-color: var(--coral); box-shadow: 0 4px 14px #f57a7335; }
+.gauge-container.max { border-color: #c084fc; box-shadow: 0 0 16px #c084fc66; animation: gauge-pulse .5s ease-in-out infinite alternate; }
+.gauge-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 750; color: var(--plum); }
+.gauge-header .gauge-value { color: var(--coral); font-size: 12px; font-weight: 800; }
+.gauge-track { position: relative; height: 11px; background: #e8ded8; border-radius: 99px; overflow: hidden; }
+.gauge-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffd969, #5eead4, #f57a73, #c084fc); transition: width .05s linear; box-shadow: 0 0 8px #f57a7380; }
+.gauge-container.max .gauge-fill { background: linear-gradient(90deg, #5eead4, #f57a73, #c084fc, #ffd969); box-shadow: 0 0 12px #c084fc; }
+.gauge-marker { position: absolute; top: 0; bottom: 0; width: 1.5px; background: #ffffff70; }
+.gauge-marker.m25 { left: 25%; }
+.gauge-marker.m50 { left: 50%; }
+.gauge-marker.m75 { left: 75%; }
+.gauge-hint { font-size: 10px; color: #70455c99; text-align: center; }
+.gauge-hint b { color: var(--plum); }
+
+.spin-btn { position: relative; overflow: hidden; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.spin-btn.charging { transform: scale(0.98); background: #382e36; box-shadow: inset 0 0 15px rgba(245, 122, 115, 0.4); }
+.spin-btn.max { background: linear-gradient(135deg, #382e36, #4a2840); box-shadow: 0 0 18px rgba(192, 132, 252, 0.6); animation: btn-shake .3s infinite; }
+
+@keyframes gauge-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.01); }
+}
+@keyframes btn-shake {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
 .rules { background: #ffffff80; margin-top: 18px; border-radius: 17px; padding: 14px; font-size: 12px; }
 .rules summary { cursor: pointer; font-weight: 750; padding: 4px; color: var(--plum); }
 .rules .row { border-radius: 10px; padding: 9px; background: #ffffffb8; margin-top: 7px; font-size: 11px; }

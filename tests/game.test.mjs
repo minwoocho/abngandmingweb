@@ -19,6 +19,9 @@ test('carry can be replayed even after betting every remaining ticket', () => {
 });
 test('native payout rules and input validation', () => {
   assert.deepEqual(resolveSpin(15, 0, 2, 'plus5'), { tickets: 18, carry: 0 });
+  assert.deepEqual(resolveSpin(15, 0, 2, 'plus2'), { tickets: 15, carry: 0 });
+  assert.deepEqual(resolveSpin(15, 0, 2, 'triple'), { tickets: 19, carry: 0 });
+  assert.deepEqual(resolveSpin(15, 0, 2, 'minus1'), { tickets: 12, carry: 0 });
   assert.deepEqual(resolveSpin(15, 0, 2, 'half'), { tickets: 6, carry: 0 });
   for (const args of [[0,0,0,'blank'], [1,0,2,'blank'], [1,0,-1,'blank'], [5,0,1.5,'double'], [5,0,1,'unknown']]) assert.throws(() => resolveSpin(...args));
 });

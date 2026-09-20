@@ -123,18 +123,36 @@ function Modal({ title, onClose, className = '', children }: { title: string; on
   return <dialog className={`modal ${className}`} ref={dialog} aria-label={title} onCancel={onClose}><button className="modal-close" onClick={onClose} aria-label="닫기"><X /></button>{children}<ErrorNotice /></dialog>;
 }
 
+const wheelGradient = (() => {
+  let acc = 0;
+  return `conic-gradient(${outcomes.map(o => {
+    const start = acc;
+    acc += o.weight;
+    return `${o.color} ${start}% ${acc}%`;
+  }).join(', ')})`;
+})();
+
 function Roulette({ data, update, busy }: { data: AppData; update: Update; busy: boolean }) {
   const [draft, setDraft] = useState(String(data.tickets));
   const [bet, setBet] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
+  const [spinDuration, setSpinDuration] = useState(3.4);
+  const [charging, setCharging] = useState(false);
+  const [gauge, setGauge] = useState(0);
+  const chargeStartRef = useRef<number | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const lastVibratedRef = useRef(0);
   const lock = useRef(false);
   const [result, setResult] = useState('');
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => { setDraft(String(data.tickets)); setBet(n => Math.max(1, Math.min(n, data.tickets))); }, [data.tickets]);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => () => {
+    clearTimeout(timer.current);
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+  }, []);
   const actualBet = Math.min(bet, data.tickets);
-  async function spin() {
+  async function spin(power = 0.2) {
     if (lock.current || busy || actualBet + data.carry === 0) return;
     lock.current = true; setSpinning(true); setResult('');
     const chosen = pickOutcome();
@@ -142,16 +160,69 @@ function Roulette({ data, update, busy }: { data: AppData; update: Update; busy:
     // Save the settled outcome first: closing or reloading cannot refund/reroll a bet.
     const saved = await update(d => ({ ...d, ...next }));
     if (!saved) { lock.current = false; setSpinning(false); return; }
-    setRotation(current => current + 1800 + ((360 - chosen.angle - current % 360 + 360) % 360));
-    timer.current = setTimeout(() => { setResult(`${chosen.label} · ${chosen.message}`); setSpinning(false); lock.current = false; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : 3500);
+    const extraTurns = Math.round(power * 10); // 0 to 10
+    const totalTurns = 4 + extraTurns; // 4 to 14 turns
+    const duration = 2.8 + power * 1.4; // 2.8s to 4.2s
+    setSpinDuration(duration);
+    setRotation(current => current + totalTurns * 360 + ((360 - chosen.angle - current % 360 + 360) % 360));
+    const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : Math.round(duration * 1000);
+    timer.current = setTimeout(() => {
+      setResult(`${chosen.label} · ${chosen.message}`);
+      setSpinning(false);
+      lock.current = false;
+      setGauge(0);
+    }, delay);
   }
+  const startCharging = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (lock.current || spinning || busy || actualBet + data.carry === 0) return;
+    chargeStartRef.current = performance.now();
+    lastVibratedRef.current = 0;
+    setCharging(true);
+    setGauge(0);
+    const tick = () => {
+      if (chargeStartRef.current === null) return;
+      const elapsed = performance.now() - chargeStartRef.current;
+      const p = Math.min(1, elapsed / 1500);
+      setGauge(p);
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        if (p >= 1 && lastVibratedRef.current < 1) {
+          navigator.vibrate?.([30, 30, 50]);
+          lastVibratedRef.current = 1;
+        } else if (p >= 0.5 && lastVibratedRef.current < 0.5) {
+          navigator.vibrate?.(20);
+          lastVibratedRef.current = 0.5;
+        }
+      }
+      if (p < 1) {
+        animFrameRef.current = requestAnimationFrame(tick);
+      }
+    };
+    animFrameRef.current = requestAnimationFrame(tick);
+    const onRelease = () => {
+      window.removeEventListener('pointerup', onRelease);
+      window.removeEventListener('pointercancel', onRelease);
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (chargeStartRef.current !== null) {
+        const elapsed = performance.now() - chargeStartRef.current;
+        chargeStartRef.current = null;
+        setCharging(false);
+        const finalPower = Math.max(0.15, Math.min(1, elapsed / 1500));
+        void spin(finalPower);
+      }
+    };
+    window.addEventListener('pointerup', onRelease, { once: true });
+    window.addEventListener('pointercancel', onRelease, { once: true });
+  };
   return <div className="roulette-page"><div className="balance-header"><div><p className="eyebrow">KKUNGCHAL ROULETTE</p><h1>꿍찰권 카지노</h1></div><div className="balance"><Ticket size={21} /><div><small>보유</small><strong data-testid="balance">{spinning ? '…' : data.tickets}</strong></div></div></div>
     <form className="balance-editor" onSubmit={e => { e.preventDefault(); const parsed = Number(draft); if (!Number.isFinite(parsed) || draft.trim() === '') return; void update(d => ({ ...d, tickets: Math.min(9999, Math.max(0, Math.floor(parsed))) })); }}><label htmlFor="tickets">보유 꿍찰권 직접 입력</label><div><input id="tickets" type="number" inputMode="numeric" min="0" max="9999" step="1" required value={draft} disabled={spinning || busy} onChange={e => setDraft(e.target.value)} /><span>장</span><button disabled={spinning || busy}>적용</button></div><small>0장부터 9,999장까지 이 기기에 저장돼요.</small></form>
     {data.carry > 0 && !spinning && <p className="carry">🔥 이월 판돈 <b>{data.carry}장</b>이 기다려요!</p>}
-    <div className="wheel-stage"><span className="wheel-pointer" /><div className="wheel" style={{ transform: `rotate(${rotation}deg)`, background: 'conic-gradient(#f57a73 0% 10%, #ffd969 10% 22%, #9ed6bd 22% 30%, #b8d6f2 30% 59%, #ebc2d1 59% 87%, #f7a869 87% 100%)' }}>{outcomes.map(outcome => <span className="wheel-label" key={outcome.id} style={{ left: `${50 + Math.sin(outcome.angle * Math.PI / 180) * 35}%`, top: `${50 - Math.cos(outcome.angle * Math.PI / 180) * 35}%` }}>{outcome.label === '묻고 더블로' ? <>묻고<br />더블로</> : outcome.label}</span>)}<div className="wheel-hub"><Heart fill="currentColor" /></div></div></div>
-    <div className="bet-panel"><div className="row"><b>이번 판 배팅</b><strong className="coral">{actualBet}장</strong></div><input aria-label="배팅할 꿍찰권" type="range" min="1" max={Math.max(2, data.tickets)} value={Math.max(1, actualBet)} disabled={spinning || busy || data.tickets <= 1} onChange={e => setBet(Number(e.target.value))} /><div className="presets">{[1, 3, 5].map(n => <button key={n} disabled={spinning || busy || data.tickets < n} onClick={() => setBet(n)}>{n}장</button>)}<button disabled={spinning || busy || data.tickets === 0} onClick={() => setBet(data.tickets)}>전부</button></div><button className="primary" disabled={spinning || busy || actualBet + data.carry === 0} onClick={() => void spin()}><Sparkles size={18} />{spinning ? '두근두근…' : `${actualBet + data.carry}장으로 돌리기`}</button>{data.tickets === 0 && data.carry === 0 && !spinning && <small>꿍찰권을 직접 입력해서 다시 시작해보세요.</small>}</div>
+    <div className="wheel-stage"><span className="wheel-pointer" /><div className="wheel" style={{ transform: `rotate(${rotation}deg)`, background: wheelGradient, transition: spinning ? `transform ${spinDuration}s cubic-bezier(.12,.71,.12,1)` : 'none' }}>{outcomes.map(outcome => <span className="wheel-label" key={outcome.id} style={{ left: `${50 + Math.sin(outcome.angle * Math.PI / 180) * 35}%`, top: `${50 - Math.cos(outcome.angle * Math.PI / 180) * 35}%` }}>{outcome.label === '묻고 더블로' ? <>묻고<br />더블로</> : outcome.label}</span>)}<div className="wheel-hub"><Heart fill="currentColor" /></div></div></div>
+    <div className="bet-panel"><div className="row"><b>이번 판 배팅</b><strong className="coral">{actualBet}장</strong></div><input aria-label="배팅할 꿍찰권" type="range" min="1" max={Math.max(2, data.tickets)} value={Math.max(1, actualBet)} disabled={spinning || busy || data.tickets <= 1} onChange={e => setBet(Number(e.target.value))} /><div className="presets">{[1, 3, 5].map(n => <button key={n} disabled={spinning || busy || data.tickets < n} onClick={() => setBet(n)}>{n}장</button>)}<button disabled={spinning || busy || data.tickets === 0} onClick={() => setBet(data.tickets)}>전부</button></div>
+    <div className={`gauge-container ${charging ? 'active' : ''} ${gauge >= 1 ? 'max' : ''}`}><div className="gauge-header"><span className="gauge-title">{gauge >= 1 ? '🔥 MAX POWER! (14회전 대폭발)' : charging ? `⚡ ${Math.round(gauge * 100)}% 충전 (${4 + Math.round(gauge * 10)}회전)` : '파워 게이지'}</span><span className="gauge-value">{Math.round(gauge * 100)}%</span></div><div className="gauge-track"><div className="gauge-fill" style={{ width: `${Math.max(4, Math.round(gauge * 100))}%` }} /><span className="gauge-marker m25" /><span className="gauge-marker m50" /><span className="gauge-marker m75" /></div><small className="gauge-hint">버튼을 <b>길게 누를수록</b> 파워가 차서 룰렛이 많이 회전해요!</small></div>
+    <button type="button" className={`primary spin-btn ${charging ? 'charging' : ''} ${gauge >= 1 ? 'max' : ''}`} disabled={spinning || busy || actualBet + data.carry === 0} onPointerDown={startCharging} onContextMenu={e => e.preventDefault()} onClick={() => { if (!lock.current && !spinning && !charging) void spin(0.2); }}><Sparkles size={18} />{spinning ? '두근두근…' : charging ? (gauge >= 1 ? '🔥 손을 떼면 최대 파워 발사!' : `⚡ 파워 충전 중… (${Math.round(gauge * 100)}%)`) : `${actualBet + data.carry}장으로 돌리기`}</button>{data.tickets === 0 && data.carry === 0 && !spinning && <small>꿍찰권을 직접 입력해서 다시 시작해보세요.</small>}</div>
     {result && <div className="result" role="status"><b>{result}</b><p>현재 {data.tickets}장 보유</p></div>}
-    <details className="rules"><summary>룰렛 규칙과 확률 보기</summary>{outcomes.map(o => <div className="row" key={o.id}><span>{o.id === 'half' ? '나머지 꿍찰권 ½배' : o.label}</span><b>{o.weight}%</b></div>)}<p>배팅한 장수는 먼저 차감돼요. 2배는 이월금을 포함한 판돈의 두 배를 지급하고, +5회는 5장을 추가해요. ½배는 남은 보유량의 절반(소수점 버림), 꽝은 판돈 소멸, -2회는 2장 추가 차감이에요.</p><p>‘묻고 더블로’는 판돈을 다음 판으로 넘겨요. 보유량이 0이어도 이월금만으로 돌릴 수 있어요.</p></details>
+    <details className="rules"><summary>룰렛 규칙과 확률 보기</summary>{outcomes.map(o => <div className="row" key={o.id}><span>{o.id === 'half' ? '나머지 꿍찰권 ½배' : o.label}</span><b>{o.weight}%</b></div>)}<p>배팅한 장수는 먼저 차감돼요. 3배는 판돈의 세 배, 2배는 판돈의 두 배를 지급하고, +5회/+2회는 각각 5장/2장을 추가해요. ½배는 남은 보유량의 절반(소수점 버림), -1회/-2회는 각각 1장/2장 추가 차감, 꽝은 판돈 소멸이에요.</p><p>‘묻고 더블로’는 판돈을 다음 판으로 넘겨요. 보유량이 0이어도 이월금만으로 돌릴 수 있어요.</p></details>
   </div>;
 }
 
