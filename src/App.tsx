@@ -1,9 +1,11 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { CakeSlice, Check, ChevronRight, Download, Eye, EyeOff, Gift, Heart, Images, Plus, Share, Sparkles, Ticket, Trash2, Upload, X } from 'lucide-react';
-import { asset, letter } from './content';
+import { asset } from './content';
 import { outcomes, pickOutcome, resolveSpin } from './game.mjs';
 import { bundledURL, exportBackup, importBackup, loadData, preparePhoto, saveData, type AppData, type Photo } from './storage';
 import { Cake } from './Cake';
+import { BirthdayLetter } from './BirthdayLetter';
+import { LetterMusic } from './letterMusic';
 
 const tabs = [{ id: 'home', title: '홈', Icon: Heart }, { id: 'roulette', title: '룰렛', Icon: Ticket }, { id: 'cake', title: '촛불', Icon: CakeSlice }, { id: 'wishes', title: '소원권', Icon: Gift }, { id: 'album', title: '앨범', Icon: Images }] as const;
 type Tab = typeof tabs[number]['id'];
@@ -22,7 +24,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [tab, setTab] = useState<Tab>(currentTab);
-  const [letterOpen, setLetterOpen] = useState(false);
+  const [letterMusic, setLetterMusic] = useState<LetterMusic | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [heartBurst, setHeartBurst] = useState(0);
   const [offlineReady, setOfflineReady] = useState(false);
@@ -94,7 +96,7 @@ export default function App() {
             <button className="quick-card yellow" onClick={() => navigate('wishes')}><Gift /><strong>소원권 5장</strong><small>앙이에게 바치는,, 소원 쿠폰..</small></button>
             <button className="quick-card mint album-link" onClick={() => navigate('album')}><Images /><strong>우리의 추억 앨범</strong><small>앙앤밍의,, 추억,, 새록새록,,</small><ChevronRight className="card-chevron" /></button>
           </div></div>
-          <footer className="home-footer"><button className="couple-button" onClick={() => setLetterOpen(true)} aria-label="생일 편지 열기"><img src={asset('characters/couple-hug.png')} alt="함께 안고 있는 앙이와 밍이" /><span>💌</span></button><div><small>9.23 + 9.24</small><p>태어나줘서 고맙단다 ♥</p></div></footer>
+          <footer className="home-footer"><button className="couple-button" onClick={() => setLetterMusic(new LetterMusic())} aria-label="생일 편지 열기"><img src={asset('characters/couple-hug.png')} alt="함께 안고 있는 앙이와 밍이" /><span>💌</span></button><div><small>9.23 + 9.24</small><p>태어나줘서 고맙단다 ♥</p></div></footer>
           <div className="home-tools"><button className="text-button" onClick={() => setToolsOpen(true)}>홈 화면에 추가 · 보관함</button><button className="mascot-toggle" aria-label={data.roaming ? '움직이는 캐릭터 끄기' : '움직이는 캐릭터 켜기'} aria-pressed={data.roaming} disabled={busy} onClick={() => void update(d => ({ ...d, roaming: !d.roaming }))}>{data.roaming ? <Eye size={15} /> : <EyeOff size={15} />}</button></div>
         </section>
         <section hidden={tab !== 'roulette'} aria-label="룰렛"><Roulette data={data} update={update} busy={busy} /></section>
@@ -106,7 +108,7 @@ export default function App() {
     </div>
     {data.roaming && <Roamers />}
     <ErrorNotice />
-    {letterOpen && <Modal title="생일 편지" onClose={() => setLetterOpen(false)} className="letter-modal"><div className="envelope" aria-hidden="true"><div className="envelope-flap" /><span>♥</span></div><article className="letter-paper"><Heart className="coral" fill="currentColor" /><h2>{letter.title}</h2><small>{letter.subtitle}</small><hr /><p>{letter.body}</p><Heart className="coral" size={20} fill="currentColor" /></article></Modal>}
+    {letterMusic && <Modal title="생일 편지" onClose={() => setLetterMusic(null)} className="letter-modal"><BirthdayLetter music={letterMusic} /></Modal>}
     {toolsOpen && <Modal title="우리의 작은 보관함" onClose={() => setToolsOpen(false)}><h2>우리의 작은 보관함</h2><div className="install-guide"><Share className="coral" /><h3>아이폰 홈 화면에 쏙</h3><p>Safari에서 이 페이지를 열고<br /><b>공유 → 홈 화면에 추가</b>를 눌러주세요.<br />‘웹 앱으로 열기’가 보이면 켜주세요.</p><p className="muted">홈 화면 아이콘에서 실행하면 앱처럼 열려요. 처음에는 인터넷에 연결해두세요.</p><small role="status">{offlineReady ? '✓ 기본 사진까지 오프라인 준비 완료' : pwaError ? '오프라인 준비에 실패했어요. 연결 후 다시 열어주세요.' : '인터넷 연결 상태에서 오프라인 사용을 준비해요.'}</small></div>{updateReady && <button className="secondary" disabled={busy} onClick={installUpdate}>새 버전으로 업데이트</button>}<Backup data={data} busy={busy} update={update} onError={setError} /><p className="storage-note">사진과 기록은 이 기기에만 저장돼요. 다른 기기와 자동으로 공유되지 않아요. 사이트 데이터 삭제나 기기 변경 전에 백업해주세요.</p></Modal>}
   </NoticeContext.Provider>;
 }

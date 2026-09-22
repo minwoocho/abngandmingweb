@@ -10,7 +10,7 @@ test('mobile layout, hearts, letter, home-only toggle and default album', async 
   await expect(page.locator('.heart-burst i')).toHaveCount(12);
   await page.getByRole('button', { name: '생일 편지 열기' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.locator('.letter-paper p')).not.toHaveText('');
+  await expect(page.locator('.letter-body')).not.toHaveText('');
   await expect(page.getByRole('dialog').locator('textarea, input')).toHaveCount(0);
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   await page.getByRole('button', { name: '움직이는 캐릭터 끄기' }).click();
@@ -125,5 +125,9 @@ test('installed cache supports offline reload on repository subpath', async ({ p
     await page.getByRole('navigation').getByRole('button', { name: '앨범', exact: true }).click();
     await expect(page.locator('.photo-card')).toHaveCount(9);
     await expect.poll(() => page.locator('.photo-card img').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await page.getByRole('navigation').getByRole('button', { name: '홈', exact: true }).click();
+    await page.getByRole('button', { name: '생일 편지 열기' }).click();
+    await expect(page.getByRole('button', { name: '음악 끄기', exact: true })).toBeVisible();
+    expect(await page.evaluate(async () => (await document.fonts.load('25px "Nanum Pen Script"', '한나')).length)).toBeGreaterThan(0);
   } finally { if (server.listening) { server.closeAllConnections(); server.close(); } }
 });
