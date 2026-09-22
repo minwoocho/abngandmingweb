@@ -3,6 +3,9 @@ import { readFile } from 'node:fs/promises';
 import { createPreviewServer } from './serve.mjs';
 
 test('mobile layout, hearts, letter, home-only toggle and default album', async ({ page }) => {
+  // This intentionally exercises every tab at three viewport widths and all
+  // bundled album images. GitHub's WebKit runner can exceed the default 30s.
+  test.slow();
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('./');
