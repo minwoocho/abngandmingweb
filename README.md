@@ -101,7 +101,7 @@ Pages를 아직 활성화하지 않았다면 첫 배포 작업이 실패할 수 
 
 편지가 펼쳐진 뒤 느린 생일 축하 멜로디가 낮은 음량으로 반복됩니다. Web Audio로 직접 합성한 오르골 소리이며 외부 음원 서비스나 오디오 다운로드가 필요하지 않습니다. 편지 상단의 작은 음악 버튼으로 끄고 켤 수 있고, 편지를 닫으면 오디오 자원을 해제합니다. 앱을 벗어나거나 화면이 숨겨지면 일시 정지하며, 돌아온 뒤에는 음악 버튼을 눌러 다시 재생합니다. 자동 재생이 제한된 브라우저에서도 버튼으로 재시도할 수 있습니다. 소리가 들리지 않으면 기기의 미디어 음량을 확인하세요.
 
-편지 본문에는 **나눔손글씨 펜(Nanum Pen Script)**을 사용합니다. 폰트는 `public/fonts/`에 포함되어 오프라인에서도 표시되며, SIL Open Font License 1.1 원문은 `public/fonts/OFL-NanumPenScript.txt`에 동봉했습니다. 음악은 `src/letterMusic.ts`, 편지 화면은 `src/BirthdayLetter.tsx`와 `src/styles.css`에서 관리합니다.
+편지 본문에는 **개구(Gaegu)** 글꼴을 사용합니다. 폰트는 `public/fonts/`에 포함되어 오프라인에서도 표시되며, SIL Open Font License 1.1 원문은 `public/fonts/OFL-Gaegu.txt`에 동봉했습니다. 음악은 `src/letterMusic.ts`, 편지 화면은 `src/BirthdayLetter.tsx`와 `src/styles.css`에서 관리합니다.
 
 ## 저장소 구성
 

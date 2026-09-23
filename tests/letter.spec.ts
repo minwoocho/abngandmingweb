@@ -83,7 +83,7 @@ test('handwritten letter remains readable and closable at the end on small scree
   await page.getByRole('button', { name: '생일 편지 열기' }).click();
   await expect(page.locator('.letter-body')).toContainText('한나야, 어느덧 우리가 두 번째 생일');
   await expect(page.getByRole('dialog').locator('input, textarea, [contenteditable=true]')).toHaveCount(0);
-  expect(await page.evaluate(async () => (await document.fonts.load('24px "Nanum Pen Script"', '한나')).length)).toBeGreaterThan(0);
+  expect(await page.evaluate(async () => (await document.fonts.load('24px "Gaegu"', '한나')).length)).toBeGreaterThan(0);
   for (const width of [320, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.locator('.letter-signature').scrollIntoViewIfNeeded();

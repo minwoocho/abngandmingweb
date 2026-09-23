@@ -149,7 +149,7 @@ main { padding: calc(20px + env(safe-area-inset-top)) 18px calc(92px + env(safe-
 .modal-close { position: absolute; right: 12px; top: 10px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #ffffffbb; z-index: 10; }
 .photo-modal { padding: 58px 16px 20px; }.full-photo { max-height: 55dvh; width: 100%; object-fit: contain; border-radius: 12px; }
 .photo-modal label { display: block; margin: 18px 0 10px; font-size: 13px; font-weight: 750; }.photo-modal textarea { width: 100%; resize: vertical; line-height: 1.5; margin-bottom: 12px; }.photo-modal .text-button { margin: auto; }.danger { color: #b43e50; }
-@font-face { font-family: 'Nanum Pen Script'; src: url('/fonts/NanumPenScript-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Gaegu'; src: url('/fonts/Gaegu-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
 .letter-modal { background: transparent; box-shadow: none; padding: 0; width: min(520px, calc(100% - 24px)); border-radius: 14px; overflow-x: hidden; scrollbar-width: none; }
 .letter-modal::backdrop { background: #30262999; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .letter-modal > .modal-close { position: sticky; float: right; top: 10px; margin: 10px 10px -54px 0; z-index: 30; background: #fffaf0; color: #795c56; }
@@ -163,10 +163,10 @@ main { padding: calc(20px + env(safe-area-inset-top)) 18px calc(92px + env(safe-
 .letter-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 25px; }
 .letter-kicker { font-size: 8px; font-weight: 600; letter-spacing: 1.9px; color: #957666; }
 .letter-seal { flex-shrink: 0; width: 43px; height: 43px; display: grid; place-items: center; border-radius: 48% 52% 45% 55%; transform: rotate(-12deg); color: #fce7df; background: radial-gradient(circle at 35% 30%, #c38b89, #9d5e64); border: 3px double #dfb3a780; box-shadow: 1px 3px 5px #80574a30, inset 0 0 0 3px #9e646333; }
-.letter-paper h2 { font-family: 'Nanum Pen Script', cursive; font-weight: 400; font-size: 38px; line-height: 1.2; color: #87595b; margin-bottom: 8px; scroll-margin-top: 110px; }
+.letter-paper h2 { font-family: 'Gaegu', cursive; font-weight: 400; font-size: 38px; line-height: 1.2; color: #87595b; margin-bottom: 8px; scroll-margin-top: 110px; }
 .letter-subtitle { display: block; color: #8d7666; font-size: 10px; line-height: 1.8; letter-spacing: .4px; }
 .letter-rule { display: flex; align-items: center; gap: 12px; color: #b88d76; margin: 22px 0 25px; font-size: 14px; }.letter-rule::before, .letter-rule::after { content: ''; height: 1px; flex: 1; background: #c3a08360; }
-.letter-body, .letter-signature { font-family: 'Nanum Pen Script', 'Apple SD Gothic Neo', sans-serif; font-size: 25px; font-weight: 400; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+.letter-body, .letter-signature { font-family: 'Gaegu', 'Apple SD Gothic Neo', sans-serif; font-size: 25px; font-weight: 400; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
 .letter-body p { white-space: pre-line; margin: 0 0 25px; }
 .letter-signature { white-space: pre-line; text-align: right; padding-top: 12px; color: #87595b; font-size: 28px; line-height: 1.5; }.letter-signature svg { margin: 12px 0 0 auto; }
 .letter-ending { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 36px; padding-top: 18px; border-top: 1px solid #c3a08340; color: #9b7a67; font-size: 9px; letter-spacing: 2px; }.letter-ending span { color: #b67579; font-size: 16px; }

@@ -127,6 +127,6 @@ test('installed cache supports offline reload on repository subpath', async ({ p
     await page.getByRole('navigation').getByRole('button', { name: '홈', exact: true }).click();
     await page.getByRole('button', { name: '생일 편지 열기' }).click();
     await expect(page.getByRole('button', { name: '음악 끄기', exact: true })).toBeVisible();
-    expect(await page.evaluate(async () => (await document.fonts.load('25px "Nanum Pen Script"', '한나')).length)).toBeGreaterThan(0);
+    expect(await page.evaluate(async () => (await document.fonts.load('25px "Gaegu"', '한나')).length)).toBeGreaterThan(0);
   } finally { if (server.listening) { server.closeAllConnections(); server.close(); } }
 });
