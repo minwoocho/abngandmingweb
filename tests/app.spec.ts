@@ -40,7 +40,7 @@ test('mobile layout, hearts, letter, home-only toggle and default album', async 
   expect(errors).toEqual([]);
 });
 
-test('all-in blank persists zero; carry-only spin recovers; wish and cake work', async ({ page }) => {
+test('all-in blank returns the stake; carry-only spin recovers; wish and cake work', async ({ page }) => {
   await page.addInitScript(() => { Math.random = () => .65; });
   await page.goto('./#roulette');
   await page.getByLabel('보유 꿍찰권 직접 입력').fill('4');
@@ -50,10 +50,6 @@ test('all-in blank persists zero; carry-only spin recovers; wish and cake work',
   await page.getByRole('button', { name: '4장으로 돌리기' }).click();
   await expect(page.locator('.result')).toContainText('꽝', { timeout: 6000 });
   await page.reload();
-  await expect(page.getByTestId('balance')).toHaveText('0');
-  await expect(page.getByRole('button', { name: '0장으로 돌리기' })).toBeDisabled();
-  await page.getByLabel('보유 꿍찰권 직접 입력').fill('4');
-  await page.getByRole('button', { name: '적용', exact: true }).click();
   await expect(page.getByTestId('balance')).toHaveText('4');
   await page.getByRole('button', { name: '전부', exact: true }).click();
   await page.evaluate(() => { Math.random = () => .95; });
